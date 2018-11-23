@@ -1,5 +1,13 @@
 #!/bin/bash
 
+pushd () {
+    command pushd "$@" > /dev/null
+}
+
+popd () {
+    command popd "$@" > /dev/null
+}
+
 while getopts ":r" opt; do
   case ${opt} in
     r ) # process option r
@@ -10,6 +18,10 @@ while getopts ":r" opt; do
       ;;
   esac
 done
+
+shift $(($OPTIND - 1))
+pushd .
+cd $@
 
 FILES="$(git ls-tree ${RECURSIVE} --name-only HEAD .)"
 MAXLEN=0
@@ -23,3 +35,5 @@ for f in $FILES; do
     str="$(git log -1 --pretty=format:"%ci" $f)"
     printf "%-${MAXLEN}s -- %s\n" "$str" "$f" 
 done
+
+popd
